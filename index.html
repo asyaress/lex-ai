@@ -1,0 +1,644 @@
+<!doctype html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <title>LEX untuk Mahasiswa – Flipbook Mobile</title>
+    <meta name="theme-color" content="#ffffff" />
+
+    <!-- Font (modern, readable) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+
+    <!-- Flipbook library (StPageFlip) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/page-flip/dist/css/page-flip.css" />
+    <script src="https://cdn.jsdelivr.net/npm/page-flip/dist/js/page-flip.browser.min.js" defer></script>
+
+    <style>
+        :root {
+            /* Light theme per request (back putih) */
+            --bg: #ffffff;
+            --surface: #ffffff;
+            --text: #121212;
+            --muted: #596173;
+            --border: #e8ebf0;
+            /* Nuansa logo Lex (tanpa gradasi berlebihan) */
+            --lex-pink: #F86CA9;
+            /* approx */
+            --lex-blue: #3FB2FF;
+            /* approx */
+            --lex-paper: #DCCCA3;
+            /* paper tone */
+            --radius: 16px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans";
+            background: var(--bg);
+            color: var(--text);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* App shell */
+        .app {
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+            min-height: 100dvh;
+        }
+
+        .app-header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: .6rem;
+            padding: .7rem max(12px, env(safe-area-inset-left)) .7rem max(12px, env(safe-area-inset-right));
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .brand {
+            font-weight: 800;
+            letter-spacing: .2px;
+        }
+
+        .logo-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--lex-blue);
+            box-shadow: 0 0 0 2px rgba(63, 178, 255, .15);
+        }
+
+        /* Book container */
+        .book-wrap {
+            position: relative;
+            display: grid;
+            place-items: center;
+            padding: 10px 10px 72px;
+            height: 100%;
+        }
+
+        #flipbook {
+            width: 100%;
+            max-width: 460px;
+            aspect-ratio: 9/14;
+            border-radius: var(--radius);
+            overflow: hidden;
+            box-shadow: 0 10px 45px rgba(20, 30, 40, .08), 0 0 0 1px var(--border) inset;
+            background: var(--surface);
+        }
+
+        /* Page (light, readable) */
+        .page-inner {
+            width: 100%;
+            height: 100%;
+            padding: 18px 16px 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: var(--surface);
+            color: var(--text);
+        }
+
+        .page-header {
+            font-size: 1.08rem;
+            font-weight: 800;
+            letter-spacing: .2px;
+            margin: 2px 0 6px;
+        }
+
+        .lead {
+            color: var(--muted);
+            font-size: .96rem;
+            line-height: 1.55;
+        }
+
+        .list {
+            padding-left: 18px;
+            margin: 0;
+            display: grid;
+            gap: 7px;
+        }
+
+        .list li {
+            line-height: 1.45;
+        }
+
+        .badge {
+            align-self: flex-start;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-size: .72rem;
+            font-weight: 800;
+            letter-spacing: .3px;
+            color: var(--text);
+            background: #f4f7fb;
+            border: 1px solid var(--border);
+        }
+
+        .badge.blue {
+            background: #eef7ff;
+            border-color: #d7e8ff;
+            color: #0b4a7a;
+        }
+
+        .badge.pink {
+            background: #fff1f7;
+            border-color: #ffd6e9;
+            color: #7a0b42;
+        }
+
+        .code {
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+            font-size: .86rem;
+            background: #f7f8fa;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 8px 10px;
+            color: #222;
+        }
+
+        .tiny {
+            font-size: .8rem;
+            color: var(--muted);
+        }
+
+        .hr {
+            height: 1px;
+            background: var(--border);
+            margin: 2px 0;
+        }
+
+        /* FULL-BLEED COVER SUPPORT */
+        .cover-page .page-inner {
+            padding: 0;
+        }
+
+        .cover-bleed {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background: #faf9f5;
+        }
+
+        .cover-bleed img {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .cover-caption {
+            position: absolute;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        .cover-chip {
+            background: rgba(255, 255, 255, .92);
+            border: 1px solid var(--border);
+            color: var(--text);
+            border-radius: 999px;
+            padding: 8px 12px;
+            font-weight: 700;
+            font-size: .82rem;
+        }
+
+        /* Bottom controls (minimal, tanpa warna panah) */
+        .controls {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 20;
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 12px calc(10px + env(safe-area-inset-bottom));
+            background: rgba(255, 255, 255, .95);
+            backdrop-filter: blur(8px);
+            border-top: 1px solid var(--border);
+        }
+
+        .btn {
+            appearance: none;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            background: #fff;
+            color: var(--text);
+            font-weight: 700;
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        .btn:active {
+            transform: translateY(1px);
+        }
+
+        .btn--ghost {
+            background: #fff;
+            border-color: transparent;
+            color: #1a1a1a;
+        }
+
+        .pager {
+            text-align: center;
+            font-variant-numeric: tabular-nums;
+            color: var(--muted);
+            font-weight: 700;
+        }
+
+        h1 {
+            font-size: 1.15rem;
+            margin: 0;
+        }
+
+        h2 {
+            font-size: 1.08rem;
+            margin: 0;
+        }
+
+        p {
+            margin: 0;
+        }
+
+        /* Only-mobile guard */
+        @media (min-width: 740px) {
+            .only-mobile {
+                display: none !important;
+            }
+
+            .desktop-note {
+                display: grid !important;
+            }
+        }
+
+        .desktop-note {
+            display: none;
+            place-items: center;
+            height: 100dvh;
+            text-align: center;
+            padding: 24px;
+            color: var(--muted);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="desktop-note">Buka halaman ini di ponsel untuk pengalaman terbaik (UI dioptimalkan untuk mobile).</div>
+
+    <div class="app only-mobile">
+        <header class="app-header">
+            <span class="logo-dot" aria-hidden="true"></span>
+            <div class="brand">LEX untuk Mahasiswa</div>
+        </header>
+
+        <main class="book-wrap">
+            <div id="flipbook" aria-label="Buku materi Lex untuk mahasiswa" role="region">
+                <!-- 0. COVER (hard) – ganti src gambar sesuai kebutuhan -->
+                <section class="page cover-page" data-density="hard">
+                    <div class="page-inner">
+                        <div class="cover-bleed">
+                            <!-- GANTI src DI BAWAH INI DENGAN GAMBAR COVER ANDA -->
+                            <img src="images/Black and White Minimalist Memoir Book Cover (1).png" alt="Book cover" />
+                            <div class="cover-caption">
+                                <span class="cover-chip">Tap untuk mulai</span>
+                                <span class="cover-chip">LEX ✦ AI</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- STORYTELLING FLOW -->
+                <!-- 1. Masalah -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge pink">Pembuka</span>
+                        <h2 class="page-header">Tugas menumpuk, waktu mepet</h2>
+                        <p class="lead">Tugas banyak, waktu mepet. Ide ada, tapi susah merangkai jadi tulisan yang rapi.
+                        </p>
+                    </div>
+                </section>
+
+                <!-- 2. Kenalan Lex -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge blue">Kenalan</span>
+                        <h2 class="page-header">Masuk: Lex (lex.page)</h2>
+                        <p class="lead">Lex itu aplikasi ngetik dengan AI. Dia paham isi dokumenmu dan bantu dari ide →
+                            draf → revisi → kirim.</p>
+                    </div>
+                </section>
+
+                <!-- NEW: Untuk apa saja -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge">Untuk apa?</span>
+                        <h2 class="page-header">Lex bisa dipakai untuk</h2>
+                        <ul class="list">
+                            <li><strong>Esai & tugas kuliah</strong> (outline, cek alur, revisi)</li>
+                            <li><strong>Laporan praktikum</strong> (bahasa jelas, ringkas)</li>
+                            <li><strong>Ringkasan bacaan</strong> / literature review</li>
+                            <li><strong>Proposal</strong> (PKM, magang, skripsi) – struktur & argumen</li>
+                            <li><strong>Naskah presentasi</strong> & catatan slide</li>
+                            <li><strong>Email dosen</strong> & surat resmi</li>
+                            <li><strong>Kerja kelompok</strong> (komentar, versi)</li>
+                            <li><strong>CV/portofolio singkat</strong></li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 3. Janji Lex -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge">Nilai utama</span>
+                        <h2 class="page-header">Yang Lex lakukan untukmu</h2>
+                        <ul class="list">
+                            <li><strong>Ask Lex</strong> membaca seluruh dokumen + lampiran</li>
+                            <li><strong>Checks</strong> memperbaiki kalimat & struktur</li>
+                            <li><strong>Style Guides</strong> menjaga konsistensi gaya</li>
+                            <li><strong>Knowledge Bases</strong> menata riset & istilah</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 4. 10 menit pertama -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge blue">Mulai cepat</span>
+                        <h2 class="page-header">10 menit pertama dengan Lex</h2>
+                        <ol class="list" style="list-style: decimal;">
+                            <li>Tempel draf / mulai kosong</li>
+                            <li>Ask Lex untuk outline & cek alur argumen</li>
+                            <li>Jalankan 2–3 <strong>Checks</strong></li>
+                            <li>(Opsional) aktifkan <strong>Style Guide</strong></li>
+                            <li>Simpan <strong>Version</strong> → <strong>Share</strong></li>
+                        </ol>
+                    </div>
+                </section>
+
+                <!-- NEW: Alur cerita -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge blue">Alur</span>
+                        <h2 class="page-header">Cerita pakai Lex (singkat)</h2>
+                        <ol class="list" style="list-style: decimal;">
+                            <li><strong>Masalah</strong>: bingung menyusun tulisan</li>
+                            <li><strong>Masuk</strong>: buka Lex, buat outline</li>
+                            <li><strong>Tulis</strong>: isi draf per bagian</li>
+                            <li><strong>Cek</strong>: jalankan Checks + revisi</li>
+                            <li><strong>Rapi</strong>: pakai Style Guide</li>
+                            <li><strong>Kirim</strong>: share atau publish</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <!-- 5. Ask Lex in action -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge">Contoh</span>
+                        <h2 class="page-header">Ask Lex: dari buntu jadi runut</h2>
+                        <p class="lead">“Nilai alurku dan buat 3 outline (900–1100 kata).”</p>
+                        <div class="code">Ringkas PDF ini (terlampir) jadi 5 temuan utama + 3 keterbatasan studi.</div>
+                    </div>
+                </section>
+
+                <!-- 6. Checks yang mengajar -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge">Line‑editing</span>
+                        <h2 class="page-header">Checks: tulis jelas, hemat, rapi</h2>
+                        <ul class="list">
+                            <li>Grammar & tanda baca</li>
+                            <li>Brevity (hemat kata)</li>
+                            <li>Readability (mudah dibaca)</li>
+                            <li>Terminologi & konsistensi</li>
+                        </ul>
+                        <p class="tiny">Setiap saran punya alasan. Kamu tetap pegang kendali.</p>
+                    </div>
+                </section>
+
+                <!-- 7. Style Guides -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge blue">Consistency</span>
+                        <h2 class="page-header">Suara tulisan yang konsisten</h2>
+                        <p class="lead">Ajari Lex gaya tulisanmu. Bisa buat profil: laporan praktikum, esai, poster.
+                            Tulisanmu jadi konsisten.</p>
+                    </div>
+                </section>
+
+                <!-- 8. Knowledge Bases -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge">Context</span>
+                        <h2 class="page-header">Riset yang terorganisir</h2>
+                        <p class="lead">Satukan paper, catatan, link, dan transkrip. AI jadi lebih akurat dan tetap
+                            on‑topic.</p>
+                    </div>
+                </section>
+
+                <!-- 9. Kolaborasi & Versions -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge blue">Teams</span>
+                        <h2 class="page-header">Kerja kelompok tanpa drama</h2>
+                        <ul class="list">
+                            <li>Komentar, live‑cursor, dan share via tautan</li>
+                            <li>Versioning & rewind untuk bereksperimen</li>
+                            <li>Read‑only link untuk publikasi/presentasi</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 10. Privasi -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge">Keamanan</span>
+                        <h2 class="page-header">Aman dipakai kuliah</h2>
+                        <ul class="list">
+                            <li>Data tidak dipakai melatih model tanpa izin</li>
+                            <li>Vendor AI via enterprise API</li>
+                            <li>TLS, 2FA, backup, akses terbatas ber‑log</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 11. Batasan & paket -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge blue">Models</span>
+                        <h2 class="page-header">Batasan & paket</h2>
+                        <ul class="list">
+                            <li><strong>Gratis</strong>: 30 pesan Ask Lex/hari, 5 saved prompts/bulan</li>
+                            <li><strong>Pro</strong>: akses model premium & limit longgar</li>
+                            <li>Diskon pelajar/akademik — hubungi tim Lex</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 12. Mini‑challenge -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge">Latihan</span>
+                        <h2 class="page-header">Mini‑challenge (15 menit)</h2>
+                        <ol class="list" style="list-style: decimal;">
+                            <li>Ambil 1 paragraf dari draf</li>
+                            <li>Jalankan Checks “Brevity + Readability”</li>
+                            <li>Minta Ask Lex beri 3 saran revisi</li>
+                            <li>Terapkan 1 saran → simpan Version “revisi‑1”</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <!-- 13. Prompt template -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge blue">Template</span>
+                        <h2 class="page-header">Prompt yang tinggal pakai</h2>
+                        <div class="code">Bikin outline esai 1.000 kata soal [topik], 3 argumen utama + 5 referensi (5
+                            th terakhir).</div>
+                        <div class="code">Cek alur logika bagian Metode—ada confounder yang kelewat? Beri 3 saran
+                            revisi.</div>
+                        <div class="code">Parafrasa paragraf ini jadi akademik, ringkas (&lt;120 kata), hindari jargon.
+                        </div>
+                        <div class="code">Ringkas PDF ini jadi 5 temuan utama + 3 keterbatasan studi.</div>
+                        <div class="code">Poles abstrak jadi jelas (180–200 kata), lalu jalankan Checks.</div>
+                    </div>
+                </section>
+
+                <!-- 14. Before → After (cerita perubahan) -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge">Perubahan</span>
+                        <h2 class="page-header">Dari draf berantakan → tulisan enak dibaca</h2>
+                        <ul class="list">
+                            <li><strong>Sebelum</strong>: paragraf bertele‑tele, argumen kabur</li>
+                            <li><strong>Sesudah</strong>: struktur jelas, kalimat ringkas, istilah konsisten</li>
+                            <li><strong>Hasil</strong>: waktu revisi berkurang, nilai presentasi naik</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 15. Next steps -->
+                <section class="page">
+                    <div class="page-inner">
+                        <span class="badge blue">Lanjut</span>
+                        <h2 class="page-header">Langkah berikutnya</h2>
+                        <ul class="list">
+                            <li>Buat dokumen pertamamu di Lex</li>
+                            <li>Susun 1 Style Guide untuk mata kuliah inti</li>
+                            <li>Kumpulkan 5 paper penting ke Knowledge Base</li>
+                        </ul>
+                    </div>
+                </section>
+
+                <!-- 16. Back Cover (hard) -->
+                <section class="page" data-density="hard">
+                    <div class="page-inner"
+                        style="justify-content:center; align-items:center; text-align:center; gap:10px;">
+                        <div class="page-header" style="font-size:1.1rem">Terima kasih</div>
+                        <p class="lead">Selamat bereksperimen dengan Lex. Semoga naskahmu makin rapi & tajam 🎓</p>
+                        <span class="tiny">Geser untuk melihat halaman lain.</span>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Transparent overlay: tap area seluruh cover -->
+            <div class="cover-overlay" id="coverOverlay" aria-label="Ketuk untuk membuka buku"
+                style="position:absolute; inset:0; z-index:5; pointer-events:auto; background: transparent;"></div>
+        </main>
+
+        <!-- Bottom controls (modern, minimal) -->
+        <nav class="controls" aria-label="Navigasi buku">
+            <button class="btn btn--ghost" id="prevBtn" aria-label="Halaman sebelumnya">◂</button>
+            <div class="pager"><span id="pageNow">1</span> / <span id="pageTotal">—</span></div>
+            <button class="btn btn--ghost" id="nextBtn" aria-label="Halaman berikutnya">▸</button>
+        </nav>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', () => {
+            const viewport = document.getElementById('flipbook');
+            const overlay = document.getElementById('coverOverlay');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const pageNow = document.getElementById('pageNow');
+            const pageTotal = document.getElementById('pageTotal');
+
+            // Init PageFlip
+            const pageFlip = new St.PageFlip(viewport, {
+                width: 360,
+                height: 560,
+                size: 'stretch',
+                minWidth: 280,
+                maxWidth: 480,
+                minHeight: 420,
+                maxHeight: 820,
+                showCover: true,
+                usePortrait: true,
+                flippingTime: 650,
+                maxShadowOpacity: 0.2,
+                mobileScrollSupport: false,
+                drawShadow: true,
+            });
+
+            // Load from HTML
+            pageFlip.loadFromHTML(document.querySelectorAll('#flipbook .page'));
+
+            pageTotal.textContent = pageFlip.getPageCount();
+            pageNow.textContent = pageFlip.getCurrentPageIndex() + 1;
+
+            function updatePager() { pageNow.textContent = pageFlip.getCurrentPageIndex() + 1; }
+            pageFlip.on('flip', updatePager);
+
+            prevBtn.addEventListener('click', () => pageFlip.flipPrev());
+            nextBtn.addEventListener('click', () => pageFlip.flipNext());
+
+            // Tap overlay to open (flip dari cover ke halaman 1)
+            function openBook() {
+                overlay.style.display = 'none';
+                if (pageFlip.getCurrentPageIndex() === 0) pageFlip.flipNext('top');
+            }
+            overlay.addEventListener('click', openBook);
+
+            // Keyboard (opsional di mobile / testing di desktop)
+            window.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') pageFlip.flipPrev();
+                if (e.key === 'ArrowRight') pageFlip.flipNext();
+            });
+        });
+    </script>
+</body>
+
+</html>
